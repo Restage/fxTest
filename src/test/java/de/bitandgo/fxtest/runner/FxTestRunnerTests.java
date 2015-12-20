@@ -1,11 +1,12 @@
 package de.bitandgo.fxtest.runner;
 
 import de.bitandgo.fxtest.annotation.FxTest;
-import java.lang.reflect.Method;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 
 public class FxTestRunnerTests {  
@@ -56,16 +57,16 @@ public class FxTestRunnerTests {
   }
   
   /**
-   * Tests, that the method which is annotated with @FxTest, is marked for execution.
+   * Tests, that methods which are annotated with {@link FxTest} and implicitly or explicitly enabled, is marked for execution.
    */
   @Test
   public void testFxTestAnnotationImplicitlyEnabled() {
     final List<Method> testMethodsToExecute = testRunner.getTestMethodsToExecute();
     
-    Assert.assertEquals("Number of marked methods is correct",
+    Assert.assertEquals("Number of methods marked for execution is correct",
                         2,
                         testMethodsToExecute.size());
-    
+
     Assert.assertEquals("Name of the marked method is correct",
                         "fxTestImplicitlyEnabled",
                         testMethodsToExecute.get(0).getName());
@@ -73,5 +74,21 @@ public class FxTestRunnerTests {
     Assert.assertEquals("Name of the marked method is correct",
                         "fxTestExplicitlyEnabled",
                         testMethodsToExecute.get(1).getName());
+  }
+
+  /**
+   * Tests, that methods which are annotated with {@link FxTest} and excplicilty disabled, are not marked for execution.
+   */
+  @Test
+  public void testFxAnnotationExplicitlyDisabled() {
+    final List<Method> testMethodsIgnored = testRunner.getTestMethodsToIgnore();
+
+    Assert.assertEquals("Number of methods is correct",
+                        1,
+                        testMethodsIgnored.size());
+
+    Assert.assertEquals("Name of the method is correct",
+                        "fxTestExplicitlyDisabled",
+                        testMethodsIgnored.get(0).getName());
   }
 }

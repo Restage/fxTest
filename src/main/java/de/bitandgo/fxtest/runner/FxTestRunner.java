@@ -1,17 +1,22 @@
 package de.bitandgo.fxtest.runner;
 
 import de.bitandgo.fxtest.annotation.FxTest;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
- * fxTest Runner class, which uses JUnit's {@link Runner} to enable the exection of the tests.
+ * fxTest Runner class, which uses JUnit's {@link Runner} to enable the exection of the tests.<p/>
+ * It looks for methods annotated with {@link FxTest} and than differentiates between those which are enabled and those whicht are not. The enabled
+ * ones are executed via reflection while the disabled ones are ignored.
  * 
  * @author Kaufmann, Richard
  * 
@@ -24,9 +29,9 @@ public class FxTestRunner extends Runner {
    */
   private final Class        classUnderTest;
   /**
-   * All methods of the class, which must be executed.
+   * All methods of the class, which are annotated with {@link FxTest}, together with the information if they should be executed.
    */
-  private final List<Method> testMethodsToExecute = new ArrayList<>();
+  private final Map<Method, Boolean> testMethods = new HashMap<>();
   
   /**
    * Public constructor, which is responsible for detecting all the methods that need to be executed.
@@ -38,12 +43,12 @@ public class FxTestRunner extends Runner {
     
     final Method[] allClassMethods = classUnderTest.getDeclaredMethods();
     
-    for (final Method classMethod : allClassMethods) {
+    for (final Method classMethod : allClassMethods) {      
       final FxTest fxTestAnnotation = classMethod.getAnnotation(FxTest.class);
       
       // is the method annotated with the FxTest annotation
-      if(null != fxTestAnnotation && fxTestAnnotation.enabled()) {
-        testMethodsToExecute.add(classMethod);
+      if(null != fxTestAnnotation) {
+        testMethods.put(classMethod, fxTestAnnotation.enabled());
       }
     }
   }
@@ -53,7 +58,8 @@ public class FxTestRunner extends Runner {
    */
   @Override
   public Description getDescription() {
-    return Description.createSuiteDescription(Class.class);
+    // TODO: create a testsuite description
+    return Description.createSuiteDescription(null);
   }
 
   /**
@@ -61,28 +67,39 @@ public class FxTestRunner extends Runner {
    */
   @Override
   public void run(RunNotifier rn) {
-    for (Method methodToExecute : testMethodsToExecute) {
-      Description spec = Description.createTestDescription(methodToExecute.getDeclaringClass().getName(),
-                                                           methodToExecute.getName());
-      rn.fireTestStarted(spec);
+    for (Map.Entry<Method, Boolean> methodToExecute : testMethods.entrySet()) {
+      final Method  testMethod  = methodToExecute.getKey();
+      final Boolean testEnabled = methodToExecute.getValue();
       
-      try {
-        final Object testClassInstance = classUnderTest.newInstance();
-        methodToExecute.invoke(testClassInstance, (Object[]) null);
+      Description spec = Description.createTestDescription(testMethod.getDeclaringClass().getName(),
+                                                           testMethod.getName());
+      
+      if(testEnabled) {
+        // marked test as started
+        rn.fireTestStarted(spec);
         
-        rn.fireTestFinished(spec);
-      } catch (InvocationTargetException ex) {
-        // if an exception occured during the execution of the target method, it is wrapped in an InvocationTargetException
-        rn.fireTestFailure(new Failure(spec, ex.getCause()));
-      } catch (Exception ex) {
-        // all other exceptions get a generic treatment
-        rn.fireTestFailure(new Failure(spec, ex));
+        try {
+          final Object testClassInstance = classUnderTest.newInstance();
+          testMethod.invoke(testClassInstance, (Object[]) null);
+
+          // if no exception was thrown, the test can be marked as successfully finished
+          rn.fireTestFinished(spec);
+        } catch (InvocationTargetException ex) {
+          // if an exception occured during the execution of the target method, it is wrapped in an InvocationTargetException
+          rn.fireTestFailure(new Failure(spec, ex.getCause()));
+        } catch (Exception ex) {
+          // all other exceptions get a generic treatment
+          rn.fireTestFailure(new Failure(spec, ex));
+        }
+      } else {
+        // all test which are not enabled are marked as ignored
+        rn.fireTestIgnored(spec);
       } 
     }
   }
 
   /**
-   * Return the class, which is under test.
+   * Returns the class, which is under test.
    * 
    * @return class the runner has detected for testing
    */
@@ -91,11 +108,28 @@ public class FxTestRunner extends Runner {
   }
 
   /**
-   * Return the methods, which are marked for test execution.
+   * Returns the methods, which are marked for test execution. These have the value {@code true} in the {@code Map}.
    * 
-   * @return list of methods which are marked for testing
+   * @return list of methods, which are marked for testing
    */
   List<Method> getTestMethodsToExecute() {
-    return testMethodsToExecute;
+    return testMethods.entrySet().
+            stream().
+            filter(me -> me.getValue()).
+            map(Map.Entry::getKey).
+            collect(Collectors.toList());
+  }
+
+  /**
+   * Returns the methods, which are disabled for execution. These have the value {@code false} in the {@code Map}.
+   *
+   * @return list of methods, which are not marked for testing
+   */
+  List<Method> getTestMethodsToIgnore() {
+    return testMethods.entrySet().
+            stream().
+            filter(me -> !me.getValue()).
+            map(Map.Entry::getKey).
+            collect(Collectors.toList());
   }
 }
