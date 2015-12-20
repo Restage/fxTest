@@ -92,7 +92,7 @@ public class FxTestRunnerInitializationTests {
   }
 
   /**
-   * Tests, that methods which are annotated with {@link FxTest} and excplicilty disabled, are not marked for execution.
+   * Tests, that methods which are annotated with {@link FxTest} and explicitly disabled, are not marked for execution.
    */
   @Test
   public void testFxAnnotationExplicitlyDisabled() {
