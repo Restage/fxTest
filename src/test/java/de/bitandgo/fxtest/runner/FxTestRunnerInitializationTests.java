@@ -8,73 +8,87 @@ import org.junit.runner.Description;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
-public class FxTestRunnerTests {  
-  
+/**
+ * JUnit Tests for the {@code FxTestRunner} class, which proofs the correctness of TestRunner initialization routine.
+ *
+ * @author Kaufmann, Richard
+ * @since 0.1.0
+ */
+public class FxTestRunnerInitializationTests {
+
   /**
-   * Test fxTest class, which has to be correctly analysed by the {@link FxTestRunner}.
+   * Test fxTest class, whose annotations need to be correctly analysed by the {@link FxTestRunner}.
    */
-  class fxTestClass {
+  class fxAnnotationTestClass {
     @FxTest
     public void fxTestImplicitlyEnabled() {
       // empty
     }
-    
+
     @FxTest(enabled = true)
     public void fxTestExplicitlyEnabled() {
       // empty
     }
-    
+
     @FxTest(enabled = false)
     public void fxTestExplicitlyDisabled() {
       // empty
     }
   }
-  
+
   /**
    * FxTestRunner is the class to be tested.
    */
   private static FxTestRunner testRunner;
-  
+
   /**
    * Setup before the first test is executed.
    */
   @BeforeClass
   public static void setupClass() {
-    testRunner = new FxTestRunner(fxTestClass.class);
+    testRunner = new FxTestRunner(fxAnnotationTestClass.class);
   }
-  
+
   /**
    * Tests, that the class under test is correctly recognized.
    */
   @Test
-  public void testClassUnderTest() {    
+  public void testClassUnderTest() {
     final Class classUnderTest = testRunner.getClassUnderTest();
-    
+
     Assert.assertEquals("Class name is recognized correctly",
-                        fxTestClass.class.getName(),
+                        fxAnnotationTestClass.class.getName(),
                         classUnderTest.getName());
   }
-  
+
   /**
    * Tests, that methods which are annotated with {@link FxTest} and implicitly or explicitly enabled, is marked for execution.
    */
   @Test
   public void testFxTestAnnotationImplicitlyEnabled() {
-    final List<Method> testMethodsToExecute = testRunner.getTestMethodsToExecute();
-    
+    // sorted list of all methods with the FxTest annotation
+    final List<Method> testMethodsToExecute = testRunner.getTestMethodsToExecute()
+                                                        .stream()
+                                                        .sorted((method1, methode2) -> method1.getName()
+                                                                                              .compareTo(methode2.getName()))
+                                                        .collect(Collectors.toList());
+
     Assert.assertEquals("Number of methods marked for execution is correct",
                         2,
                         testMethodsToExecute.size());
 
     Assert.assertEquals("Name of the marked method is correct",
-                        "fxTestImplicitlyEnabled",
-                        testMethodsToExecute.get(0).getName());
-    
-    Assert.assertEquals("Name of the marked method is correct",
                         "fxTestExplicitlyEnabled",
-                        testMethodsToExecute.get(1).getName());
+                        testMethodsToExecute.get(0)
+                                            .getName());
+
+    Assert.assertEquals("Name of the marked method is correct",
+                        "fxTestImplicitlyEnabled",
+                        testMethodsToExecute.get(1)
+                                            .getName());
   }
 
   /**
@@ -90,7 +104,8 @@ public class FxTestRunnerTests {
 
     Assert.assertEquals("Name of the method is correct",
                         "fxTestExplicitlyDisabled",
-                        testMethodsIgnored.get(0).getName());
+                        testMethodsIgnored.get(0)
+                                          .getName());
   }
 
   /**
@@ -101,7 +116,7 @@ public class FxTestRunnerTests {
     final Description testSuiteDescription = testRunner.getDescription();
 
     Assert.assertEquals("Description of the whole test is the name of the class under test",
-                        fxTestClass.class.getName(),
+                        fxAnnotationTestClass.class.getName(),
                         testSuiteDescription.getClassName());
   }
 }
