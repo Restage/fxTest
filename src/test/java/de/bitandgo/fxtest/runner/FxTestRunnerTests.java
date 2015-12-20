@@ -4,6 +4,7 @@ import de.bitandgo.fxtest.annotation.FxTest;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.Description;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -90,5 +91,17 @@ public class FxTestRunnerTests {
     Assert.assertEquals("Name of the method is correct",
                         "fxTestExplicitlyDisabled",
                         testMethodsIgnored.get(0).getName());
+  }
+
+  /**
+   * Test, that the whole test gets a {@link Description} which contains the name of the class under test.
+   */
+  @Test
+  public void testTestSuiteDescription() {
+    final Description testSuiteDescription = testRunner.getDescription();
+
+    Assert.assertEquals("Description of the whole test is the name of the class under test",
+                        fxTestClass.class.getName(),
+                        testSuiteDescription.getClassName());
   }
 }

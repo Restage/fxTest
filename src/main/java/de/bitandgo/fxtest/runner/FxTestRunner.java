@@ -58,8 +58,7 @@ public class FxTestRunner extends Runner {
    */
   @Override
   public Description getDescription() {
-    // TODO: create a testsuite description
-    return Description.createSuiteDescription(null);
+    return Description.createSuiteDescription(classUnderTest);
   }
 
   /**
