@@ -1,6 +1,7 @@
 package de.bitandgo.fxtest.runner;
 
 import de.bitandgo.fxtest.annotation.FxTest;
+import de.bitandgo.fxtest.runner.examples.fxAnnotationTestClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,26 +19,6 @@ import java.util.stream.Collectors;
  * @since 0.1.0
  */
 public class FxTestRunnerInitializationTests {
-
-  /**
-   * Test fxTest class, whose annotations need to be correctly analysed by the {@link FxTestRunner}.
-   */
-  class fxAnnotationTestClass {
-    @FxTest
-    public void fxTestImplicitlyEnabled() {
-      // empty
-    }
-
-    @FxTest(enabled = true)
-    public void fxTestExplicitlyEnabled() {
-      // empty
-    }
-
-    @FxTest(enabled = false)
-    public void fxTestExplicitlyDisabled() {
-      // empty
-    }
-  }
 
   /**
    * FxTestRunner is the class to be tested.
