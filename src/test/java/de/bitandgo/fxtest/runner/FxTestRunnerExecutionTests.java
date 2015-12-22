@@ -18,7 +18,7 @@ import org.junit.runner.notification.RunNotifier;
 public class FxTestRunnerExecutionTests {
 
   /**
-   * FxTestRunner is the class to be tested.
+   * The {@link FxTestRunListener} gives information about the state of the executed fxTest.
    */
   private static FxTestRunListener testRunListener;
 
