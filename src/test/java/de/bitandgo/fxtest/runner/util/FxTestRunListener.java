@@ -22,7 +22,7 @@ public class FxTestRunListener extends RunListener {
   }
 
   /**
-   * Execution state of the testMethods annotated with {@link de.bitandgo.fxtest.annotation.FxTest}.
+   * Execution state of the test methods annotated with {@link de.bitandgo.fxtest.annotation.FxTest}.
    */
   private Map<String, FxTestState> testState = new HashMap<>();
 
@@ -51,11 +51,11 @@ public class FxTestRunListener extends RunListener {
   }
 
   /**
-   * Returns the state of the last test executed.
+   * Returns the {@link FxTestState} of a test method.
    *
-   * @param testMethodName {@link FxTestState} of which method should be returned
+   * @param testMethodName for which method should the {@link FxTestState} be returned
    *
-   * @return {@link FxTestState} of the last test
+   * @return {@link FxTestState} of the method or {@code null} if no {@link FxTestState} was set
    */
   public FxTestState getTestState(final String testMethodName) {
     return testState.get(testMethodName);

@@ -45,7 +45,7 @@ public class FxTestRunnerExecutionTests {
   }
 
   /**
-   * Test, to ensure a test method with an violated assertion is marked as test failure.
+   * Test, to ensure a test method with a violated assertion is marked as test failure.
    */
   @Test
   public void testAssertionErrorResultsInFailedState() {
