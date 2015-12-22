@@ -66,19 +66,21 @@ public class FxTestRunner extends Runner {
    */
   @Override
   public void run(RunNotifier rn) {
+    // to run all the test methods an instance of the class under test is needed
+    final Object testClassInstance = createClassUnderTestInstance();
+
     for (Map.Entry<Method, Boolean> methodToExecute : testMethods.entrySet()) {
       final Method  testMethod  = methodToExecute.getKey();
       final Boolean testEnabled = methodToExecute.getValue();
       
       Description spec = Description.createTestDescription(testMethod.getDeclaringClass().getName(),
                                                            testMethod.getName());
-      
-      if(testEnabled) {
+
+      if(testEnabled && null != testClassInstance) {
         // marked test as started
         rn.fireTestStarted(spec);
         
         try {
-          final Object testClassInstance = classUnderTest.newInstance();
           testMethod.invoke(testClassInstance, (Object[]) null);
 
           // if no exception was thrown, the test can be marked as successfully finished
@@ -94,6 +96,19 @@ public class FxTestRunner extends Runner {
         // all test which are not enabled are marked as ignored
         rn.fireTestIgnored(spec);
       } 
+    }
+  }
+
+  /**
+   * Tries to create an object of the {@link #classUnderTest} fields class type.
+   *
+   * @return instance of the {@link #classUnderTest} or {@code null} if an exception occured during the instantiation process
+   */
+  private Object createClassUnderTestInstance() {
+    try {
+      return classUnderTest.newInstance();
+    } catch (InstantiationException|IllegalAccessException ex) {
+      return null;
     }
   }
 
