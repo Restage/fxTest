@@ -27,6 +27,11 @@ public class FxTestRunListener extends RunListener {
   private Map<String, FxTestState> testState = new HashMap<>();
 
   /**
+   * Failure descriptions of the test methods which threw an assertion error during execution.
+   */
+  private Map<String, Failure> testFailures = new HashMap<>();
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -40,6 +45,7 @@ public class FxTestRunListener extends RunListener {
   @Override
   public void testFailure(Failure failure) throws Exception {
     testState.put(failure.getDescription().getMethodName(), FxTestState.FAIL);
+    testFailures.put(failure.getDescription().getMethodName(), failure);
   }
 
   /**
@@ -59,5 +65,16 @@ public class FxTestRunListener extends RunListener {
    */
   public FxTestState getTestState(final String testMethodName) {
     return testState.get(testMethodName);
+  }
+
+  /**
+   * Returns the {@link Failure} thrown during the execution of a test method.
+   *
+   * @param testMethodName for which method should the {@link Failure} be returned
+   *
+   * @return {@link Failure} or {@code null} if no one happened during execution
+   */
+  public Failure getTestFailure(final String testMethodName) {
+    return testFailures.get(testMethodName);
   }
 }

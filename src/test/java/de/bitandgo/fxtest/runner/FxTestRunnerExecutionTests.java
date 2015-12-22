@@ -5,6 +5,7 @@ import de.bitandgo.fxtest.runner.examples.fxExecutionTestClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
 
@@ -62,5 +63,46 @@ public class FxTestRunnerExecutionTests {
     Assert.assertEquals("Teststate of fxTestIgnored is IGNORED",
                         FxTestRunListener.FxTestState.IGNORED,
                         testRunListener.getTestState("fxTestIgnored"));
+  }
+
+  /**
+   * Test, to ensure a test method without a violated assertion does not produce a {@link Failure}.
+   */
+  @Test
+  public void testNoAssertionErrorResultsInNoFailure() {
+    Assert.assertNull("fxTestExecutedWithoutAssertionError throws no Failure",
+                      testRunListener.getTestFailure("fxTestExecutedWithoutAssertionError"));
+  }
+
+  /**
+   * Test, to ensure a test method that violates an assertion does produce a {@link Failure}.
+   */
+  @Test
+  public void testAssertionErrorResultsInFailure() {
+    final Failure failure = testRunListener.getTestFailure("fxTestExecutedWithAssertionError");
+
+    Assert.assertNotNull("fxTestExecutedWithAssertionError throws Failure",
+                        failure);
+
+    Assert.assertEquals("Assertion error must be thrown for fxTestExecutedWithAssertionError",
+                        AssertionError.class,
+                        failure.getException().getClass());
+
+    Assert.assertEquals("Failure description belongs to the right class name",
+                        fxExecutionTestClass.class,
+                        failure.getDescription().getTestClass());
+
+    Assert.assertEquals("Failure description belongs to the right method name",
+                        "fxTestExecutedWithAssertionError",
+                        failure.getDescription().getMethodName());
+  }
+
+  /**
+   * Test, to ensure a disabled test method does not produce a {@link Failure}.
+   */
+  @Test
+  public void testDisabledTestResultsInNoFailure() {
+    Assert.assertNull("fxTestIgnored throws no Failure",
+                      testRunListener.getTestFailure("fxTestIgnored"));
   }
 }
