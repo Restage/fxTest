@@ -1,5 +1,6 @@
 package de.bitandgo.fxtest.runner;
 
+import com.sun.javafx.application.PlatformImpl;
 import de.bitandgo.fxtest.annotation.FxTest;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -51,6 +52,8 @@ public class FxTestRunner extends Runner {
         testMethods.put(classMethod, fxTestAnnotation.enabled());
       }
     }
+
+    initJavaFxContext();
   }
   
   /**
@@ -110,6 +113,16 @@ public class FxTestRunner extends Runner {
     } catch (InstantiationException|IllegalAccessException ex) {
       return null;
     }
+  }
+
+  /**
+   * This method initializes the JavaFX context, which is necessary to avoid the {@link IllegalStateException} "Toolkit not initialized" when creating
+   * a {@link javafx.scene.Node} elements in a fxTest method.
+   */
+  private void initJavaFxContext() {
+    PlatformImpl.startup(() -> {
+      // nothing to be done here
+    });
   }
 
   /**
