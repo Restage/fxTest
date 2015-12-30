@@ -139,7 +139,7 @@ public class FxTestRunner extends Runner {
    * 
    * @return list of methods, which are marked for testing
    */
-  List<Method> getTestMethodsToExecute() {
+  public List<Method> getTestMethodsToExecute() {
     return testMethods.entrySet().
             stream().
             filter(me -> me.getValue()).
@@ -152,7 +152,7 @@ public class FxTestRunner extends Runner {
    *
    * @return list of methods, which are not marked for testing
    */
-  List<Method> getTestMethodsToIgnore() {
+  public List<Method> getTestMethodsToIgnore() {
     return testMethods.entrySet().
             stream().
             filter(me -> !me.getValue()).
