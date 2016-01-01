@@ -40,18 +40,11 @@ public class FxTestRunner extends Runner {
    * @param classUnderTest Class currently under test
    */
   public FxTestRunner(final Class classUnderTest) {
+    // save the name of the class
     this.classUnderTest = classUnderTest;
-    
-    final Method[] allClassMethods = classUnderTest.getDeclaredMethods();
-    
-    for (final Method classMethod : allClassMethods) {      
-      final FxTest fxTestAnnotation = classMethod.getAnnotation(FxTest.class);
-      
-      // is the method annotated with the FxTest annotation
-      if(null != fxTestAnnotation) {
-        testMethods.put(classMethod, fxTestAnnotation.enabled());
-      }
-    }
+
+    // find all FxTest methods in the class under test
+    detectFxTestMethods();
 
     initJavaFxContext();
   }
@@ -123,6 +116,23 @@ public class FxTestRunner extends Runner {
     PlatformImpl.startup(() -> {
       // nothing to be done here
     });
+  }
+
+  /**
+   * Reads all declared methods from the class under test and checks whether they are annotated with {@link FxTest}. If so, the method together with
+   * the information if it should be executed is saved in a class internal {@link Map}.
+   */
+  private void detectFxTestMethods() {
+    final Method[] allClassMethods = classUnderTest.getDeclaredMethods();
+
+    for (final Method classMethod : allClassMethods) {
+      final FxTest fxTestAnnotation = classMethod.getAnnotation(FxTest.class);
+
+      // is the method annotated with the FxTest annotation
+      if(null != fxTestAnnotation) {
+        testMethods.put(classMethod, fxTestAnnotation.enabled());
+      }
+    }
   }
 
   /**
