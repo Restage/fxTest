@@ -3,7 +3,7 @@ package de.bitandgo.fxtest.runner;
 import de.bitandgo.fxtest.runner.examples.FxTestAssertionErrorIgnoredTest;
 import de.bitandgo.fxtest.runner.examples.FxTestWithAssertionErrorTest;
 import de.bitandgo.fxtest.runner.examples.FxTestWithoutAssertionErrorTest;
-import de.bitandgo.fxtest.runner.util.FxTestRunListener;
+import de.bitandgo.fxtest.util.FxTestRunListener;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.notification.Failure;

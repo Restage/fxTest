@@ -1,4 +1,4 @@
-package de.bitandgo.fxtest.runner.util;
+package de.bitandgo.fxtest.util;
 
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
